@@ -10,38 +10,44 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.smoothstack.entity.BookLoans;
-import com.smoothstack.repository.BookCopiesRepository;
-import com.smoothstack.repository.BookLoansRepository;
+import com.smoothstack.service.BookCopiesService;
+import com.smoothstack.service.BookLoansService;
 
 @RestController
 @RequestMapping("/lms")
 public class BookLoansController {
 
 	@Autowired
-	private BookLoansRepository bookLoansRepository;
+	private BookLoansService bookLoansService;
 
 	@Autowired
-	private BookCopiesRepository bookCopiesRepository;
-
-	
+	private BookCopiesService bookCopiesRepository;
 
 	@PostMapping("/borrower/checkOutABook")
 	public ResponseEntity<BookLoans> checkOutABook(@RequestParam("bookId") long bookId,
 			@RequestParam("branchId") long branchId, @RequestParam("cardNo") long cardNo,
 			@RequestParam("dateOut") String dateOut, @RequestParam("dateDue") String dateDue) {
-		bookLoansRepository.create(bookId, branchId, cardNo, dateOut, dateDue);
-		bookCopiesRepository.decrementNumberOfCopiesbyOne(bookId, branchId);
+
+		try {
+			bookLoansService.create(bookId, branchId, cardNo, dateOut, dateDue);
+			bookCopiesRepository.decrementNumberOfCopiesbyOne(bookId, branchId);
+		} catch (Exception e) {
+			return new ResponseEntity<BookLoans>(HttpStatus.BAD_REQUEST);
+		}
 		return new ResponseEntity<BookLoans>(HttpStatus.CREATED);
 	}
 
 	@DeleteMapping("/borrower/returnABook")
 	public ResponseEntity<BookLoans> returnABook(@RequestParam("bookId") long bookId,
 			@RequestParam("branchId") long branchId, @RequestParam("cardNo") long cardNo) {
-		bookLoansRepository.delete(bookId, branchId, cardNo);
-		bookCopiesRepository.incrementNumberOfCopiesbyOne(bookId, branchId);
+
+		try {
+			bookLoansService.delete(bookId, branchId, cardNo);
+			bookCopiesRepository.incrementNumberOfCopiesbyOne(bookId, branchId);
+		} catch (Exception e) {
+			return new ResponseEntity<BookLoans>(HttpStatus.BAD_REQUEST);
+		}
 		return new ResponseEntity<BookLoans>(HttpStatus.ACCEPTED);
 
 	}
-
 }
-

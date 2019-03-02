@@ -1,4 +1,4 @@
-package com.smoothstack.repository;
+package com.smoothstack.service;
 
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import com.smoothstack.entity.BookLoans;
 
 @Service
 @Transactional
-public class BookLoansRepository {
+public class BookLoansService {
 
 	@Autowired
 	private IBookLoansDao bookLoansDao;
